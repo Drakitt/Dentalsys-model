@@ -192,11 +192,11 @@ button:hover {
 
 .picker {
   position: absolute !important;
-  bottom: 7em;
+  bottom: 50vh;
   left: 10%;
-  transform: translateX(-50%);
-  width: 120px !important;
-  height: 120px !important;
+  /* transform: translateX(-50%); */
+  width: 220px !important;
+  height: 220px !important;
 }
 
 .color-options {

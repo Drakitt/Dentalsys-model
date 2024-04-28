@@ -1,13 +1,11 @@
 "use client";
 import { useRef, useEffect, useState } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { useGLTF, useTexture, AccumulativeShadows, RandomizedLight, Decal, Environment, Center, OrbitControls } from '@react-three/drei'
-import { easing } from 'maath'
+import { Canvas } from '@react-three/fiber'
+import { useGLTF, Environment, Center, OrbitControls } from '@react-three/drei'
 import { useSnapshot } from 'valtio'
-import { state, caras, dientes } from './store'
+import { state } from './store'
 import data from '../../public/data'
 import { HexColorPicker } from "react-colorful"
-import { proxy } from 'valtio'
 
 
 
@@ -37,7 +35,7 @@ function Mouth(props) {
   const snap = useSnapshot(state.st)
   const { nodes, materials } = useGLTF('/models/dentaldr.gltf')
   const ref = useRef()
-  const [hovered, set] = useState(null)
+  const [hovered, setHovered] = useState(null)
 
 
   useEffect(() => {
@@ -50,40 +48,49 @@ function Mouth(props) {
   }, [hovered])
 
   const items = nodes.Scene.children.map((node) => {
-
+    var material;
+    var position;
+    var rotation;
+    var scale
     if (node.type == "Mesh") {
-      var material = node.material.name
-      var position = node.position
-      var rotation = node.rotation
-      var scale = node.scale
+      material = node.material.name
+      position = node.position
+      rotation = node.rotation
+      scale = node.scale
       return (
-        <mesh castShadow receiveShadow geometry={node.geometry} material={materials[material]} material-envMapIntensity={0.8} position={position} rotation={rotation} scale={scale} />
+        <mesh key={node.name} castShadow receiveShadow geometry={node.geometry} material={materials[material]} material-envMapIntensity={0.8} position={position} rotation={rotation} scale={scale} />
       )
 
 
     } else if (node.type == "Group") {
       return (node.children.map((child) => {
-        var piece = node.name.match(/(?<=t)\d+(?=0)|(?<=t)\d+/g)?.shift()
-        var pieza = piece ? data.piezas.find(item => item.numero == piece) : undefined;
+        let piece = node.name.match(/(?<=t)\d+(?=0)|(?<=t)\d+/g)?.shift()
+        let pieza = piece ? data.piezas.find(item => item.numero == piece) : undefined;
 
         material = child.material.name
-        const estado = (snap.current != null && snap.current == "ausente") || (pieza && pieza.estado == "ausente")
 
-        var color = snap.items[material]
+        let color = snap.items[material]
+        let estado = snap.items[material] == 0 ? 'ausente' : undefined
+        const estadoA = (snap.current != null && snap.current == "ausente") || (pieza && pieza.estado == "ausente") || (estado && estado === "ausente")
         position = node.position
         rotation = node.rotation
         scale = node.scale
-        if (pieza && pieza.estado != "ausente" && material.includes(pieza.cara) && !estado) {
-          color = color ? color : pieza.color
+
+        if (material.includes('14')) {
+          console.log('kkljk', estado, material, snap.current)
+        }
+        if (pieza && pieza.estado != "ausente" && material.includes(pieza.cara) && !estadoA) {
+          color = color || pieza.color
           material = `${pieza.cara}${piece}`
           return (
-            <mesh castShadow receiveShadow geometry={child.geometry} material={materials[material]} material-color={color} material-envMapIntensity={0.8} position={position} rotation={rotation} scale={scale} />
+            <mesh key={material} castShadow receiveShadow geometry={child.geometry} material={materials[material]} material-color={color} material-envMapIntensity={0.8} position={position} rotation={rotation} scale={scale} />
           )
-        } else if (estado) {
+        } else if (estadoA && Object.keys(materials).find(item => item.includes(material))) {
           return
         } else {
+          // console.log('1', material)
           return (
-            <mesh castShadow receiveShadow geometry={child.geometry} material={materials[material]} material-color={color || node.color} material-envMapIntensity={0.8} position={position} rotation={rotation} scale={scale} />
+            <mesh key={material} castShadow receiveShadow geometry={child.geometry} material={materials[material]} material-color={color} material-envMapIntensity={0.8} position={position} rotation={rotation} scale={scale} />
           )
         }
       }))
@@ -94,8 +101,8 @@ function Mouth(props) {
 
     <group
       ref={ref}
-      onPointerOver={(e) => (e.stopPropagation(), set(e.object.material.name))}
-      onPointerOut={(e) => e.intersections.length === 0 && set(null)}
+      onPointerOver={(e) => (e.stopPropagation(), setHovered(e.object.material.name))}
+      onPointerOut={(e) => e.intersections.length === 0 && setHovered(null)}
       onPointerMissed={() => (state.st.current = null)}
       onClick={(e) => (e.stopPropagation(), (state.st.current = e.object.material.name))}
       {...props} dispose={null}>
@@ -122,38 +129,41 @@ function Selector() {
   const caras = useSnapshot(state.caras)
   const dientes = useSnapshot(state.dientes)
   const estado = useSnapshot(state.estado)
+  // const color = useSnapshot(state.color)
 
-  const [caraSelect, setcaraSelect] = useState('');
-  const [dienteSelect, setdienteSelect] = useState('');
-  const [estadoSelect, setestadoSelect] = useState('');
+  const [caraSelect, setCaraSelect] = useState('');
+  const [dienteSelect, setDienteSelect] = useState('');
+  const [estadoSelect, setEstadoSelect] = useState('');
 
   const setColor = () => {
+    const dienteEntero = estadoSelect == '#feffd4' || estadoSelect == '0';
     if (caraSelect && dienteSelect && estadoSelect) {
-      if(estadoSelect != 0)
-      console.log(caraSelect)
-      state.st.current = `${caraSelect}${dienteSelect}`
-      state.st.items[snap.current] = estadoSelect;
-      console.log(state.st.current)
+      state.st.current = `${caraSelect}${dienteSelect}`;
+      state.st.items[`${caraSelect}${dienteSelect}`] = estadoSelect;
+    }
+    if (dienteEntero && dienteSelect && estadoSelect) {
+      for (let cara of caras) {
+        state.st.items[`${cara.value}${dienteSelect}`] = estadoSelect
+      }
     }
   }
 
   const caraChange = (event) => {
-    setcaraSelect(event.target.value);
-    setColor()
+    setCaraSelect(event.target.value);
+    // setColor()
 
   };
   const dienteChange = (event) => {
-    setdienteSelect(event.target.value);
-    setColor()
+    setDienteSelect(event.target.value);
+    // setColor()
   };
   const estadoChange = (event) => {
-    setestadoSelect(event.target.value);
-    setColor()
+    const value = event.target.value;
+    setEstadoSelect(value);
+    // setColorSelect(estado.find(item=> item.value === value).label);
+    // console.log(colorSelect)
+    // setColor()
   };
-  // console.log(snap)
-  // console.log(snap.items)
-  // console.log(snap.current)
-  // console.log(snap.items[snap.current])
   return (
     <div className='picker' style={{ display: snap.current ? "block" : "none" }}>
       <h2 >Selector de Dentadura</h2>
@@ -181,9 +191,11 @@ function Selector() {
           </option>
         ))}
       </select>
+      <br></br>
+      <button onClick={setColor}>oK</button>
 
       {caraSelect && dienteSelect && estadoSelect && (
-        <p>Tu elección: t{dientes.find((opcion) => opcion.value === dienteSelect)?.label} {caras.find((opcion) => opcion.value === caraSelect)?.label} estado: {estado.find((opcion) => opcion.value === estadoSelect)?.label}</p>
+        <p>Tu elección: {dientes.find((opcion) => opcion.value === dienteSelect)?.label} cara:{caras.find((opcion) => opcion.value === caraSelect)?.label} estado: {estado.find((opcion) => opcion.value === estadoSelect)?.label}</p>
       )}
     </div>
   )
