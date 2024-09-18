@@ -3,6 +3,8 @@ import { proxy } from 'valtio'
 const state = proxy({
   st: {
     current: null,
+    currentEstado: '#feffd4',
+    currentModel:'json_serialized',
     items: {
       GumsMaterial:undefined,
       distal11:undefined,
@@ -97,7 +99,7 @@ const state = proxy({
       mesial46:undefined,
       mesial47:undefined,
       mesial48:undefined,
-      oclusal:undefined,
+      oclusal48:undefined,
       oclusal14:undefined,
       oclusal15:undefined,
       oclusal16:undefined,
@@ -343,7 +345,7 @@ const state = proxy({
   ],
   estado: [
     { value: "#000000", label: 'caries' },
-    { value: "#FFF633", label: 'corona' },
+    { value: "#fff633", label: 'corona' },
     { value: "0", label: 'ausente' },
     { value: "#feffd4", label: 'sano' },
 

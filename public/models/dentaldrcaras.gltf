@@ -3450,7 +3450,7 @@
         },
         {
             "doubleSided" : true,
-            "name" : "oclusal",
+            "name" : "oclusal48",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
                     0.9911020994186401,
