@@ -156,7 +156,6 @@ function Selector({ dataOdonto, shopId }) {
   const dienteCurrent = snap.current?.replace(/\D+/, '')
   const estadoCurrent = snap.currentEstado
 
-  console.log(estadoCurrent)
   const [caraSelect, setCaraSelect] = useState(caraCurrent);
   const [dienteSelect, setDienteSelect] = useState(dienteCurrent);
   const [estadoSelect, setEstadoSelect] = useState(estadoCurrent);
@@ -234,6 +233,7 @@ function Selector({ dataOdonto, shopId }) {
       {caraSelect && dienteSelect && estadoSelect && (
         <p>Tu elección: {dientes.find((opcion) => opcion.value === dienteSelect)?.label} cara:{caras.find((opcion) => opcion.value === caraSelect)?.label} estado: {estado.find((opcion) => opcion.value === estadoSelect)?.label}</p>
       )}
+    <Switcher/>
     </div>
   )
 }
