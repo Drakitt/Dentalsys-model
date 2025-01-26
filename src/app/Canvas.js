@@ -207,7 +207,10 @@ function Selector({ dataOdonto, shopId }) {
   const [caraSelect, setCaraSelect] = useState(caraCurrent);
   const [dienteSelect, setDienteSelect] = useState(dienteCurrent);
   const [estadoSelect, setEstadoSelect] = useState(estadoCurrent);
-
+  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [nombreTratamiento, setNombreTratamiento] =useState("");
+  const [descripcion, setDescripcion] =useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setCaraSelect(caraCurrent);
@@ -220,11 +223,7 @@ function Selector({ dataOdonto, shopId }) {
   }, [estadoCurrent]);
 
   const setColor = async () => {
-    const confirmation = window.confirm(
-      "Estás a punto de crear un tratamiento. ¿Deseas continuar?"
-    );
-    if (!confirmation) {
-      return; }
+    setIsModalOpen(false);
     const dienteEntero = estadoSelect == "#feffd4" || estadoSelect == "0";
     if (caraSelect && dienteSelect && estadoSelect) {
       state.st.current = `${caraSelect}${dienteSelect}`;
@@ -236,27 +235,45 @@ function Selector({ dataOdonto, shopId }) {
           estadoSelect;
       }
     }
-    if (caraSelect && dienteSelect && estadoSelect) {
-      const prescription = {
-        nombre_tratamiento:
-          caraSelect +
-          " " +
-          dienteSelect +
-          " " +
-          estado.find((opcion) => opcion.value === estadoSelect)?.label,
-          fecha: new Date().toISOString().replace("T", " ").split(".")[0],  
-
-        descripcion: "Tratamiento mediante odontograma",
-        nro_hc: dataOdonto.data[0].nro_hc,
-
-        id_odontograma:Number(dataOdonto.data[0].id_odontograma)
-      };
-      await create(prescription);
-    }
-    
+  
     await actualizarDato(dataOdonto.data[0].nro_hc, dataOdonto.data[0][model]);
   };
-
+  const openModal = () => {
+    setNombreTratamiento(`${caraSelect} ${dienteSelect}`);
+    setDescripcion(
+      estado.find((opcion) => opcion.value === estadoSelect)?.label || ""
+    );
+    setIsModalOpen(true);
+  };
+  const handleConfirmar = async () => {
+    if (caraSelect && dienteSelect && estadoSelect) {
+      setLoading(true); // Activa el spinner
+  
+      const prescription = {
+        nombre_tratamiento:
+          nombreTratamiento || `${caraSelect} ${dienteSelect} ${estado.find((opcion) => opcion.value === estadoSelect)?.label}`,
+        fecha: new Date().toISOString().replace("T", " ").split(".")[0],
+        descripcion: descripcion || "Tratamiento mediante odontograma",
+        nro_hc: dataOdonto.data[0].nro_hc,
+        id_odontograma: Number(dataOdonto.data[0].id_odontograma),
+      };
+  
+      try {
+        // Llamar a la función para crear el tratamiento
+        await create(prescription);
+      } catch (error) {
+        console.error("Error al crear tratamiento:", error);
+      } finally {
+        setLoading(false); // Desactiva el spinner cuando se termine
+        closeModal(); // Cierra el modal después de confirmar
+      }
+    }
+  };
+  
+  
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
   const caraChange = (event) => {
     setCaraSelect(event.target.value);
     // setColor()
@@ -306,7 +323,10 @@ function Selector({ dataOdonto, shopId }) {
         ))}
       </select>
       <br></br>
-      <button onClick={setColor}>Crear Tratamiento</button>
+      <button onClick={setColor}>Visualizar</button>
+      {caraSelect && dienteSelect && estado.find((opcion) => opcion.value === estadoSelect)?.label && (
+        <button onClick={openModal}>Crear Tratamiento</button>
+      )}
 
       {caraSelect && dienteSelect && estadoSelect && (
         <p>
@@ -317,6 +337,35 @@ function Selector({ dataOdonto, shopId }) {
         </p>
       )}
       <Switcher />
+      {isModalOpen && (
+  <div className={`modal-overlay ${loading ? 'loading' : ''}`}>
+    <div className="modal">
+      <h2>Confirmación</h2>
+      <p>Estás a punto de crear un tratamiento. ¿Deseas continuar?</p>
+      <input
+        type="text"
+        value={`${caraSelect} ${dienteSelect}`} // Nombre tratamiento
+        onChange={(e) => setNombreTratamiento(e.target.value)} // Actualiza el estado si quieres hacerlo editable
+        placeholder="Nombre del tratamiento"
+      />
+      <textarea
+        value={descripcion} // Descripción
+        onChange={(e) => setDescripcion(e.target.value)} // Actualiza el estado
+        placeholder="Descripción"
+      />
+      
+      {/* Mostrar el spinner si está cargando */}
+      {loading && <div className="spinner">Cargando...</div>}
+      
+      <div className="modal-buttons">
+        <button onClick={handleConfirmar} disabled={loading}>Confirmar</button>
+        <button onClick={closeModal} disabled={loading}>Cancelar</button>
+      </div>
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 }
