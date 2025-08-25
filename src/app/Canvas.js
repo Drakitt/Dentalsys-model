@@ -64,6 +64,7 @@ export const App = ({ position = [0, 0, 2.5], fov = 25, shopId }) => {
         </Center>
         <OrbitControls makeDefault />
       </Canvas>
+      <button className="volver" onClick={() => window.history.back()}>Volver</button>
       <Selector dataOdonto={dataOdonto} shopId={shopId} />
       <Switcher />
     </>
@@ -91,9 +92,9 @@ function Mouth({ dataOdonto, ...props }) {
           cursor
         )}'), auto`;
         return () =>
-          (document.body.style.cursor = `url('data:image/svg+xml;base64,${btoa(
-            auto
-          )}'), auto`);
+        (document.body.style.cursor = `url('data:image/svg+xml;base64,${btoa(
+          auto
+        )}'), auto`);
       }
     }
   }, [hovered]);
@@ -131,7 +132,7 @@ function Mouth({ dataOdonto, ...props }) {
             : undefined;
 
           material = child.material.name;
-       
+
           let color = dataOdonto.data[0][model][material];
           let estado =
             dataOdonto.data[0][model][material] == 0 ? "ausente" : undefined;
@@ -207,9 +208,9 @@ function Selector({ dataOdonto, shopId }) {
   const [caraSelect, setCaraSelect] = useState(caraCurrent);
   const [dienteSelect, setDienteSelect] = useState(dienteCurrent);
   const [estadoSelect, setEstadoSelect] = useState(estadoCurrent);
-  const [isModalOpen, setIsModalOpen] = useState(false); 
-  const [nombreTratamiento, setNombreTratamiento] =useState("");
-  const [descripcion, setDescripcion] =useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [nombreTratamiento, setNombreTratamiento] = useState("");
+  const [descripcion, setDescripcion] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -235,7 +236,7 @@ function Selector({ dataOdonto, shopId }) {
           estadoSelect;
       }
     }
-  
+
     await actualizarDato(dataOdonto.data[0].nro_hc, dataOdonto.data[0][model]);
   };
   const openModal = () => {
@@ -248,7 +249,7 @@ function Selector({ dataOdonto, shopId }) {
   const handleConfirmar = async () => {
     if (caraSelect && dienteSelect && estadoSelect) {
       setLoading(true); // Activa el spinner
-  
+
       const prescription = {
         nombre_tratamiento:
           nombreTratamiento || `${caraSelect} ${dienteSelect} ${estado.find((opcion) => opcion.value === estadoSelect)?.label}`,
@@ -257,7 +258,7 @@ function Selector({ dataOdonto, shopId }) {
         nro_hc: dataOdonto.data[0].nro_hc,
         id_odontograma: Number(dataOdonto.data[0].id_odontograma),
       };
-  
+
       try {
         // Llamar a la función para crear el tratamiento
         await create(prescription);
@@ -269,8 +270,8 @@ function Selector({ dataOdonto, shopId }) {
       }
     }
   };
-  
-  
+
+
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -338,32 +339,32 @@ function Selector({ dataOdonto, shopId }) {
       )}
       <Switcher />
       {isModalOpen && (
-  <div className={`modal-overlay ${loading ? 'loading' : ''}`}>
-    <div className="modal">
-      <h2>Confirmación</h2>
-      <p>Estás a punto de crear un tratamiento. ¿Deseas continuar?</p>
-      <input
-        type="text"
-        value={`${caraSelect} ${dienteSelect}`} // Nombre tratamiento
-        onChange={(e) => setNombreTratamiento(e.target.value)} // Actualiza el estado si quieres hacerlo editable
-        placeholder="Nombre del tratamiento"
-      />
-      <textarea
-        value={descripcion} // Descripción
-        onChange={(e) => setDescripcion(e.target.value)} // Actualiza el estado
-        placeholder="Descripción"
-      />
-      
-      {/* Mostrar el spinner si está cargando */}
-      {loading && <div className="spinner">Cargando...</div>}
-      
-      <div className="modal-buttons">
-        <button onClick={handleConfirmar} disabled={loading}>Confirmar</button>
-        <button onClick={closeModal} disabled={loading}>Cancelar</button>
-      </div>
-    </div>
-  </div>
-)}
+        <div className={`modal-overlay ${loading ? 'loading' : ''}`}>
+          <div className="modal">
+            <h2>Confirmación</h2>
+            <p>Estás a punto de crear un tratamiento. ¿Deseas continuar?</p>
+            <input
+              type="text"
+              value={`${caraSelect} ${dienteSelect}`} // Nombre tratamiento
+              onChange={(e) => setNombreTratamiento(e.target.value)} // Actualiza el estado si quieres hacerlo editable
+              placeholder="Nombre del tratamiento"
+            />
+            <textarea
+              value={descripcion} // Descripción
+              onChange={(e) => setDescripcion(e.target.value)} // Actualiza el estado
+              placeholder="Descripción"
+            />
+
+            {/* Mostrar el spinner si está cargando */}
+            {loading && <div className="spinner">Cargando...</div>}
+
+            <div className="modal-buttons">
+              <button onClick={handleConfirmar} disabled={loading}>Confirmar</button>
+              <button onClick={closeModal} disabled={loading}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
 
 
     </div>

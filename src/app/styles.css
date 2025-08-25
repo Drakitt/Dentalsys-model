@@ -190,6 +190,12 @@ button:hover {
 
 /* PICKER */
 
+.volver {
+  position: absolute !important;
+  /* transform: translateX(50%); */
+  top: 5vh;
+  right: 10%;
+}
 .picker {
   position: absolute !important;
   bottom: 50vh;
