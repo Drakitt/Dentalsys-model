@@ -111,7 +111,7 @@ function Mouth(props) {
       var rotation = node.rotation
       var scale = node.scale
       return (
-        <mesh castShadow receiveShadow geometry={node.geometry} material={materials[material]} material-envMapIntensity={0.8} position={position} rotation={rotation} scale={scale} />
+        <mesh key={node.id} castShadow receiveShadow geometry={node.geometry} material={materials[material]} material-envMapIntensity={0.8} position={position} rotation={rotation} scale={scale} />
       )
 
 
@@ -130,13 +130,13 @@ function Mouth(props) {
           color = pieza.color
           material = `${pieza.cara}${piece}`
           return (
-            <mesh castShadow receiveShadow geometry={child.geometry} material={materials[material]} material-color={color} material-envMapIntensity={0.8} position={position} rotation={rotation} scale={scale} />
+            <mesh key={node.id} castShadow receiveShadow geometry={child.geometry} material={materials[material]} material-color={color} material-envMapIntensity={0.8} position={position} rotation={rotation} scale={scale} />
           )
         } else if (pieza && pieza.estado == "ausente") {
           return
         } else {
           return (
-            <mesh castShadow receiveShadow geometry={child.geometry} material={materials[material]} material-color={color} material-envMapIntensity={0.8} position={position} rotation={rotation} scale={scale} />
+            <mesh key={node.id} castShadow receiveShadow geometry={child.geometry} material={materials[material]} material-color={color} material-envMapIntensity={0.8} position={position} rotation={rotation} scale={scale} />
           )
         }
       }))

@@ -1,6 +1,6 @@
 export const environment = {
-    production: false,
-    endpoint: 'http://localhost:3000',
+    production: true,
+    endpoint: 'https://dentalsys-services.onrender.com',
 
    
   };
