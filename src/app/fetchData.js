@@ -2,9 +2,8 @@ import axios from 'axios';
 
 const fetchData = async (id) => {
   try {
-    const response = await axios.get({
+    const response = await axios.get(`https://dentalsys-services.onrender.com/api/v1/odontograma/${id}`,{
     method: 'get',
-    url: `https://dentalsys-services.onrender.com/api/v1/odontograma/${id}`,
     withCredentials: false
   }
       );
