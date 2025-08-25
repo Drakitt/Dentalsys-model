@@ -23,6 +23,7 @@ export const App = ({ position = [0, 0, 2.5], fov = 25, shopId }) => {
     const fetchDataAsync = async () => {
       try {
         setLoading(true);
+        console.log(shopId);
         const response = await fetchData(shopId);
 
         setDataOdonto(response);
